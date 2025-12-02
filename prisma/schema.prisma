@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+
+// Users model
+model User {
+  id           String   @id @map("UserID") @default(uuid())
+  firstName    String   @map("FirstName")
+  lastName     String   @map("LastName")
+  username     String   @map("Username") @unique
+  emailAddress String   @map("EmailAddress") @unique
+  password     String   @map("Password")
+  avatar       String?  @map("Avatar")     // made optional, mapped properly
+  isDeleted    Boolean  @map("IsDeleted") @default(false)
+  dateJoined   DateTime @map("DateJoined") @default(now())
+  lastUpdate  DateTime @map("LastUpdate") @updatedAt
+
+  // Relations
+  entries      Entry[]
+  bookmarks    Bookmark[]
+  pinnedEntries PinnedEntry[]
+
+  @@map("Users")
+}
+
+// Entry model
+model Entry {
+  id          String   @id @map("EntryID") @default(uuid())
+  entryTitle  String   @map("EntryTitle")
+  synopsis    String   @map("Synopsis")
+  content     String   @map("Content")
+  isDeleted   Boolean  @default(false) @map("IsDeleted")
+  createdAt   DateTime @default(now()) @map("CreatedAt")
+  lastUpdated DateTime @updatedAt @map("LastUpdated")
+
+  // Bonus feature: Private/Public toggle
+  isPublic    Boolean  @default(false) @map("IsPublic")
+
+  // Relations
+  userId      String   @map("UserID")
+  user        User     @relation(fields: [userId], references: [id])
+  bookmarks   Bookmark[]
+  pinnedBy    PinnedEntry[]
+
+  @@map("Entries")
+}
+
+// Bookmark model (Save/Bookmark Entries)
+model Bookmark {
+  id        String   @id @default(uuid()) @map("BookmarkID")
+  userId    String   @map("UserID")
+  entryId   String   @map("EntryID")
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("Bookmarks")
+  @@unique([userId, entryId]) // prevent duplicate bookmarks
+}
+
+// Pinned Entries model
+model PinnedEntry {
+  id        String   @id @default(uuid()) @map("PinnedID")
+  userId    String   @map("UserID")
+  entryId   String   @map("EntryID")
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("PinnedEntries")
+  @@unique([userId, entryId])
+}
