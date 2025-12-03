@@ -5,7 +5,7 @@ import { checkUsernameAndEmail } from "./middlewares/checkUsernameAndEmail.ts";
 import { checkPasswordStrength } from "./middlewares/checkPasswordStrength.ts";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import {createNote} from "./controllers/Notes.ts"
+import {createNote, getNotes, getNote, deleteNote, trash, recoverDeletedNote, updateNote} from "./controllers/Notes.ts"
 import { verifyToken } from "./middlewares/verifyToken.ts";
 import { validateNoteDetails } from "./middlewares/validateNoteDetails.ts";
 
@@ -29,7 +29,12 @@ app.post("/auth/logout", logout)
 
 //Notes Endpoints
 app.post("/notes",verifyToken, validateNoteDetails, createNote)
-
+app.get("/notes", verifyToken, getNotes)
+app.get("/notes/trash", verifyToken, trash)
+app.get("/notes/:id", verifyToken, getNote)
+app.patch("/notes/recover/:id", verifyToken, recoverDeletedNote)
+app.patch("/notes/:id", verifyToken, updateNote)
+app.delete("/notes/:id", verifyToken, deleteNote)
 
 const PORT = 5200;
 app.listen(PORT, function() {
