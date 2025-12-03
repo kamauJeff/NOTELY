@@ -89,3 +89,43 @@ export const logout = function (req:Request, res: Response) {
   }
   
 }
+
+
+
+export const changePassword = async (req:Request, res:Response) => {
+  try {
+    // get previous password and previous password
+    const {previousPassword, password} = req.body
+    const userId = req.user.id
+    const user = await client.user.findUnique({
+      where: {id: userId}
+    })
+    if (!user) {
+      res.status(400).json({message: "User doesn't exist"})
+      return;
+    }
+    
+    // compare the stored password with prev password
+    const passwordsMatch = await bcrypt.compare(previousPassword, user?.password)
+    // if they don't match -  error
+    if (!passwordsMatch) {
+      res.status(400).json({message: "Previous Password is wrong"})
+      
+    }
+    // if they match - hash the new password, update record
+    const newPassword = await bcrypt.hash(password, 11)
+    await client.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        password: newPassword
+      }
+    })
+    res.status(200).json({message: "Password updated successfully"})
+    
+  } catch (error) {
+    res.status(500).json({message: "Something went wrong"})
+  }
+  
+}
