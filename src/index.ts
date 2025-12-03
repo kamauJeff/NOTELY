@@ -4,12 +4,17 @@ import {checkDetails} from './middlewares/checkDetails.ts'
 import { checkUsernameAndEmail } from "./middlewares/checkUsernameAndEmail.ts";
 import { checkPasswordStrength } from "./middlewares/checkPasswordStrength.ts";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import {createNote} from "./controllers/Notes.ts"
+import { verifyToken } from "./middlewares/verifyToken.ts";
+import { validateNoteDetails } from "./middlewares/validateNoteDetails.ts";
 
 
 dotenv.config();
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser()) 
 
 
 app.get("/", (_req, res) =>{
@@ -21,6 +26,9 @@ app.get("/", (_req, res) =>{
 app.post("/auth/register", checkDetails, checkUsernameAndEmail, checkPasswordStrength, register )
 app.post("/auth/login", login)
 app.post("/auth/logout", logout)
+
+//Notes Endpoints
+app.post("/notes",verifyToken, validateNoteDetails, createNote)
 
 
 const PORT = 5200;

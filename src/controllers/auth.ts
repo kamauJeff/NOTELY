@@ -24,6 +24,7 @@ export const register = async(req: Request, res: Response) => {
         }
       })
       res.status(201).json({message: "Account created successfully"})
+
         
     } catch (error) {
         res.status(500).json({message: "Something went wrong"})
@@ -46,12 +47,12 @@ export const login = async function (req:Request, res:Response) {
     if (!user) {
       res.status(400).json({message: "Wrong Login Credentials"})
         return;
-    }
+    } 
     
     // if user found, compare the user password with the given password
-     const passwordMatch=  await bcrypt.compare(password, user.password)
+     const passwordsMatch=  await bcrypt.compare(password, user.password)
     // if passwords don't match - wrong credentials
-    if (!passwordMatch) {
+    if (!passwordsMatch) {
       res.status(400).json({message: "Wrong Login credentials"})
       return;
       
@@ -63,7 +64,7 @@ export const login = async function (req:Request, res:Response) {
       lastName: user.lastName,
       username: user.username,
       emailAddress: user.emailAddress,
-      avatar: user.avatar
+      avatar: user.avatar,
 
      }
     // generate a token and send it to the client as acookie
@@ -71,6 +72,7 @@ export const login = async function (req:Request, res:Response) {
     res.status(200).cookie("authToken", token).json(payload)
   } catch (error) {
     res.status(500).json({message: "Something went wrong"})
+    console.log(error);
     
   }
   
@@ -82,6 +84,7 @@ export const logout = function (req:Request, res: Response) {
     
   } catch (error) {
     res.status(500).json({message: "Something went wrong"})
+    console.log(error);
     
   }
   
