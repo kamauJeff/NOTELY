@@ -16,5 +16,5 @@ export function validateNoteDetails(req:Request, res: Response, next: NextFuncti
         return;
         
     }
-    
+    next();
 }
