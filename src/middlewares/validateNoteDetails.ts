@@ -4,7 +4,7 @@ import { type NextFunction, type Request, type Response } from "express";
 export function validateNoteDetails(req:Request, res: Response, next: NextFunction) {
     const {entryTitle, synopsis, content} = req.body
     if (!entryTitle) {
-        res.status(400).json({message: "Note Title is required"})
+        res.status(400).json({message: "Entry Title is required"})
         return;
     }
     if (!synopsis) {
